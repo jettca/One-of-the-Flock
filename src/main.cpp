@@ -12,6 +12,7 @@
 #include <iostream>
 #include "GLScreenCapturer.h"
 #include "trackball.h"
+#include "quaternion.h"
 
 using namespace std;
 
