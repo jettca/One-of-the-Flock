@@ -12,7 +12,7 @@
 #include <iostream>
 #include "GLScreenCapturer.h"
 #include "trackball.h"
-#include "quaternion.h"
+#include "bird.h"
 
 using namespace std;
 
@@ -34,19 +34,9 @@ GLfloat mat_diffuse[] = {0.6, 0.6, 0.6, 1.0};
 GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
 GLfloat mat_shininess[] = {50.0};
 
-struct thing {
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-
-    GLfloat speed;
-
-    quaternion q;
-};
-
-// Things
-struct thing things[NUM_THINGS];
-unsigned int me = 0;
+// Birds
+int me = 0;
+vector<bird> flock;
 
 // Keys held down
 bool UDLR[4] = {false, false, false, false};
@@ -66,21 +56,20 @@ void initLights()
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 }
 
-void initThings()
+void initFlock()
 {
     srandom(time(NULL));
     int i;
     for(i = 0; i < NUM_THINGS; i++)
     {
-        struct thing t;
-        t.x = 3*(i%5) - 3*5/2;
-        t.y = 0;
-        t.z = 3*(i/5);
+        quaternion q = makeQuaternion(360*random()/RAND_MAX, 0, 1, 0);
+        double x = 3*(i%5) - 3*5/2;
+        double y = 0;
+        double z = 3*(i/5);
+        double speed = 2;
 
-        t.speed = 2;
-
-        t.q = makeQuaternion(360*random()/RAND_MAX, 0, 1, 0);
-        things[i] = t;
+        bird b(x, y, z, speed, q);
+        flock.push_back(b);
     }
 }
 
@@ -114,12 +103,12 @@ void drawThings()
     int i;
     for(i = 0; i < NUM_THINGS; i++)
     {
-        struct thing pot = things[i];
+        bird b = flock.at(i);
         glPushMatrix();
         {
-            glTranslatef(pot.x, pot.y, pot.z);
-            glRotatef(pot.q.theta(), pot.q.vx(), pot.q.vy(), pot.q.vz());
-            glutSolidTeapot(1);
+            glTranslatef(b.x(), b.y(), b.z());
+            glRotatef(b.dir.theta(), b.dir.vx(), b.dir.vy(), b.dir.vz());
+            glutSolidTeab(1);
         }
         glPopMatrix();
     }
@@ -218,26 +207,21 @@ void specialUp(int key, int x, int y)
 
 void updateMe()
 {
-    quaternion q;
     if(UDLR[0])
     {
-        q = things[me].q.compose(makeQuaternion(6, 0, 0, 1));
-        things[me].q = quaternion(q.getw(), q.getx(), q.gety(), q.getz());
+        flock.at(me).tilt(6, 1);
     }
     if(UDLR[1])
     {
-        q = things[me].q.compose(makeQuaternion(-6, 0, 0, 1));
-        things[me].q = quaternion(q.getw(), q.getx(), q.gety(), q.getz());
+        flock.at(me).tilt(-6, 1);
     }
     if(UDLR[2])
     {
-        q = things[me].q.compose(makeQuaternion(-6, 1, 0, 0));
-        things[me].q = quaternion(q.getw(), q.getx(), q.gety(), q.getz());
+        flock.at(me).bank(-6, 1);
     }
     if(UDLR[3])
     {
-        q = things[me].q.compose(makeQuaternion(6, 1, 0, 0));
-        things[me].q = quaternion(q.getw(), q.getx(), q.gety(), q.getz());
+        flock.at(me).bank(6, 1);
     }
 }
 
@@ -247,14 +231,7 @@ void updateThings()
     double dx, dy, dz;
     for(i = 0; i < NUM_THINGS; i++)
     {
-        dx = .1;
-        dy = 0;
-        dz = 0;
-
-        things[i].q.rotate(dx, dy, dz);
-        things[i].x += dx;
-        things[i].y += dy;
-        things[i].z += dz;
+        flock.at(i).move(.1)
     }
 }
 
@@ -270,7 +247,7 @@ int main (int argc, char *argv[])
     int win_width = 800;
     int win_height = 680;
 
-    initThings();
+    initFlock();
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
