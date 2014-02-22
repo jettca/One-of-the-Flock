@@ -69,6 +69,17 @@ quaternion quaternion::compose(quaternion q)
     return quaternion(neww, newx, newy, newz);
 }
 
+quaternion quaternion::interpolate(quaternion q, double h)
+{
+    double omega = acos(w*q.getw() + x*q.getx() + y*q.gety() + z*q.getz());
+    double nw = (w*sin((1-h)*omega) + q.getw()*sin(h*omega))/sin(omega);
+    double nx = (x*sin((1-h)*omega) + q.getx()*sin(h*omega))/sin(omega);
+    double ny = (y*sin((1-h)*omega) + q.gety()*sin(h*omega))/sin(omega);
+    double nz = (z*sin((1-h)*omega) + q.getz()*sin(h*omega))/sin(omega);
+
+    return quaternion(nw, nx, ny, nz);
+}
+
 void quaternion::normalize()
 {
     double m = magnitude();

@@ -59,14 +59,13 @@ void initLights()
 void initFlock()
 {
     srandom(time(NULL));
-    int i;
-    for(i = 0; i < NUM_THINGS; i++)
+    for(int i = 0; i < NUM_THINGS; i++)
     {
         quaternion q = makeQuaternion(360*random()/RAND_MAX, 0, 1, 0);
         double x = 3*(i%5) - 3*5/2;
         double y = 0;
         double z = 3*(i/5);
-        double speed = 2;
+        double speed = 1;
 
         bird b(x, y, z, speed, q);
         flock.push_back(b);
@@ -100,15 +99,15 @@ void setCamera()
 
 void drawThings()
 {
-    int i;
-    for(i = 0; i < NUM_THINGS; i++)
+    for(int i = 0; i < NUM_THINGS; i++)
     {
         bird b = flock.at(i);
         glPushMatrix();
         {
-            glTranslatef(b.x(), b.y(), b.z());
-            glRotatef(b.dir.theta(), b.dir.vx(), b.dir.vy(), b.dir.vz());
-            glutSolidTeab(1);
+            glTranslatef(b.getx(), b.gety(), b.getz());
+            glRotatef(b.getdir().theta(), b.getdir().vx(),
+                    b.getdir().vy(), b.getdir().vz());
+            glutSolidTeapot(1);
         }
         glPopMatrix();
     }
@@ -227,11 +226,10 @@ void updateMe()
 
 void updateThings()
 {
-    int i;
     double dx, dy, dz;
-    for(i = 0; i < NUM_THINGS; i++)
+    for(int i = 0; i < NUM_THINGS; i++)
     {
-        flock.at(i).move(.1)
+        flock.at(i).move(.1);
     }
 }
 

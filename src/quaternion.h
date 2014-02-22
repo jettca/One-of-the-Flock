@@ -14,9 +14,9 @@ class quaternion
         double getz();
 
         quaternion compose(quaternion q);
+        quaternion interpolate(quaternion q, double h);
         void normalize();
         double magnitude();
-
         void rotate(double &vx, double &vy, double &vz);
         void conjugate();
 
