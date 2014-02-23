@@ -6,18 +6,21 @@ using namespace std;
 class bird
 {
     public:
-        bird(double x, double y, double z, double speed, quaternion direction);
-        void align(vector<bird>& flock);
+        bird(point pos, double speed, quaternion rot);
+        void align(vector<bird>& flock, unsigned int me);
         void move(double dt);
         void bank(double v, double dt);
         void tilt(double v, double dt);
 
-        double getx();
-        double gety();
-        double getz();
-        quaternion getdir();
+        point getpos();
+        quaternion getrot();
 
     private:
-        double x, y, z, speed;
-        quaternion direction;
+        point direction();
+        point center(vector<bird>& flock, unsigned int me);
+        point repulsion(vector<bird>& flock, unsigned int me);
+
+        point pos;
+        double speed;
+        quaternion rot;
 };

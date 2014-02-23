@@ -6,7 +6,7 @@ SRCDIR = src
 FRAMEWORKS = -framework OpenGL -framework GLUT
 
 # Link for target
-$(TARGET): $(OBJDIR)/main.o $(OBJDIR)/trackball.o $(OBJDIR)/GLScreenCapturer.o $(OBJDIR)/quaternion.o $(OBJDIR)/bird.o
+$(TARGET): $(OBJDIR)/main.o $(OBJDIR)/trackball.o $(OBJDIR)/GLScreenCapturer.o $(OBJDIR)/quaternion.o $(OBJDIR)/bird.o $(OBJDIR)/point.o
 	mkdir -p bin
 	$(CC) $(CFLAGS) $(OBJDIR)/* -o $(TARGET) $(FRAMEWORKS)
 
@@ -15,10 +15,10 @@ $(OBJDIR)/main.o: $(SRCDIR)/main.cpp $(SRCDIR)/trackball.h $(SRCDIR)/GLScreenCap
 	mkdir -p $(OBJDIR)
 	$(CC) $(CFLAGS) -c $(SRCDIR)/main.cpp -o $(OBJDIR)/main.o
 
-$(OBJDIR)/quaternion.o: $(SRCDIR)/quaternion.cpp $(SRCDIR)/quaternion.h
+$(OBJDIR)/quaternion.o: $(SRCDIR)/quaternion.cpp $(SRCDIR)/quaternion.h $(SRCDIR)/point.h
 	$(CC) $(CFLAGS) -c $(SRCDIR)/quaternion.cpp -o $(OBJDIR)/quaternion.o
 
-$(OBJDIR)/bird.o: $(SRCDIR)/bird.cpp $(SRCDIR)/bird.h
+$(OBJDIR)/bird.o: $(SRCDIR)/bird.cpp $(SRCDIR)/bird.h $(SRCDIR)/quaternion.h
 	$(CC) $(CFLAGS) -c $(SRCDIR)/bird.cpp -o $(OBJDIR)/bird.o
 
 $(OBJDIR)/trackball.o: $(SRCDIR)/trackball.cpp $(SRCDIR)/trackball.h
@@ -26,6 +26,9 @@ $(OBJDIR)/trackball.o: $(SRCDIR)/trackball.cpp $(SRCDIR)/trackball.h
 
 $(OBJDIR)/GLScreenCapturer.o: $(SRCDIR)/GLScreenCapturer.cpp $(SRCDIR)/GLScreenCapturer.h
 	$(CC) $(CFLAGS) -c $(SRCDIR)/GLScreenCapturer.cpp -o $(OBJDIR)/GLScreenCapturer.o
+
+$(OBJDIR)/point.o: $(SRCDIR)/point.cpp $(SRCDIR)/point.h
+	$(CC) $(CFLAGS) -c $(SRCDIR)/point.cpp -o $(OBJDIR)/point.o
 
 .PHONY: clean
 clean:

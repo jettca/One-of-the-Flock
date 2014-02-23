@@ -1,7 +1,7 @@
 #include "quaternion.h"
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 using namespace std;
 
 quaternion::quaternion() :
@@ -18,6 +18,13 @@ quaternion::quaternion(double w, double x, double y, double z) :
     z(z)
 {}
 
+quaternion::quaternion(double w, point p) :
+    w(w),
+    x(p.getx()),
+    y(p.gety()),
+    z(p.getz())
+{}
+
 double quaternion::theta()
 {
     return acos(w)*360/M_PI;
@@ -25,17 +32,29 @@ double quaternion::theta()
 
 double quaternion::vx()
 {
-    return x/sin(acos(w));
+    double st = sin(acos(w));
+    if(st != 0)
+        return x/sin(acos(w));
+    else
+        return 0;
 }
 
 double quaternion::vy()
 {
-    return y/sin(acos(w));
+    double st = sin(acos(w));
+    if(st != 0)
+        return y/sin(acos(w));
+    else
+        return 0;
 }
 
 double quaternion::vz()
 {
-    return z/sin(acos(w));
+    double st = sin(acos(w));
+    if(st != 0)
+        return z/sin(acos(w));
+    else
+        return 0;
 }
 
 double quaternion::getw()
@@ -71,7 +90,11 @@ quaternion quaternion::compose(quaternion q)
 
 quaternion quaternion::interpolate(quaternion q, double h)
 {
-    double omega = acos(w*q.getw() + x*q.getx() + y*q.gety() + z*q.getz());
+    double omega = acos((w*q.getw() + x*q.getx() + y*q.gety() + z*q.getz())
+            /(magnitude()*q.magnitude()));
+    if(omega == 0)
+        return *this;
+
     double nw = (w*sin((1-h)*omega) + q.getw()*sin(h*omega))/sin(omega);
     double nx = (x*sin((1-h)*omega) + q.getx()*sin(h*omega))/sin(omega);
     double ny = (y*sin((1-h)*omega) + q.gety()*sin(h*omega))/sin(omega);
@@ -83,7 +106,7 @@ quaternion quaternion::interpolate(quaternion q, double h)
 void quaternion::normalize()
 {
     double m = magnitude();
-    x /= m;
+    w /= m;
     x /= m;
     y /= m;
     z /= m;
@@ -94,15 +117,14 @@ double quaternion::magnitude()
     return sqrt(w*w + x*x + y*y + z*z);
 }
 
-void quaternion::rotate(double &vx, double &vy, double &vz)
+point quaternion::rotate(point p)
 {
-    quaternion v = quaternion(0, vx, vy, vz);
+    quaternion v = quaternion(0, p);
     quaternion qconj = quaternion(w, -x, -y, -z);
-    quaternion p = (*this).compose(v.compose(qconj));
+    quaternion f = (*this).compose(v.compose(qconj));
 
-    vx = p.x;
-    vy = p.y;
-    vz = p.z;
+    point result = point(f.vx(), f.vy(), f.vz());
+    return result;
 }
 
 void quaternion::conjugate()
@@ -112,11 +134,16 @@ void quaternion::conjugate()
     z = -z;
 }
 
-quaternion makeQuaternion(double theta, double x, double y, double z)
+quaternion makeQuaternion(double theta, point p)
 {
     theta = theta*M_PI/360;
     double st = sin(theta);
-    quaternion q(cos(theta), st*x, st*y, st*z);
+    quaternion q(cos(theta), st*p.getx(), st*p.gety(), st*p.getz());
     q.normalize();
     return q;
+}
+
+void quaternion::print()
+{
+    cout << w << " " << x << " " << y << " " << z << endl;
 }

@@ -61,13 +61,14 @@ void initFlock()
     srandom(time(NULL));
     for(int i = 0; i < NUM_THINGS; i++)
     {
-        quaternion q = makeQuaternion(360*random()/RAND_MAX, 0, 1, 0);
-        double x = 3*(i%5) - 3*5/2;
+        quaternion q = makeQuaternion(180, point(0, 1, 0));
+
+        double x = 3*(i%5);
         double y = 0;
         double z = 3*(i/5);
         double speed = 1;
 
-        bird b(x, y, z, speed, q);
+        bird b(point(x, y, z), speed, q);
         flock.push_back(b);
     }
 }
@@ -104,9 +105,9 @@ void drawThings()
         bird b = flock.at(i);
         glPushMatrix();
         {
-            glTranslatef(b.getx(), b.gety(), b.getz());
-            glRotatef(b.getdir().theta(), b.getdir().vx(),
-                    b.getdir().vy(), b.getdir().vz());
+            glTranslatef(b.getpos().getx(), b.getpos().gety(), b.getpos().getz());
+            quaternion rot = b.getrot();
+            glRotatef(rot.theta(), rot.vx(), rot.vy(), rot.vz());
             glutSolidTeapot(1);
         }
         glPopMatrix();
@@ -224,26 +225,27 @@ void updateMe()
     }
 }
 
-void updateThings()
+void updateFlock()
 {
-    double dx, dy, dz;
     for(int i = 0; i < NUM_THINGS; i++)
     {
         flock.at(i).move(.1);
+        if(i != me)
+            flock.at(i).align(flock, i);
     }
 }
 
 void update()
 {
     updateMe();
-    updateThings();
+    updateFlock();
     glutPostRedisplay();
 }
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    int win_width = 800;
-    int win_height = 680;
+    int win_width = 1000;
+    int win_height = 800;
 
     initFlock();
 
