@@ -4,11 +4,12 @@ TARGET = bin/main
 OBJDIR = obj
 SRCDIR = src
 FRAMEWORKS = -framework OpenGL -framework GLUT
+LIBRARIES = -I /usr/X11R6/include/ -L /usr/X11R6/lib64/ -lglut -lGL -lGLU -lX11 -lXmu -lXi -lm
 
 # Link for target
-$(TARGET): $(OBJDIR)/main.o $(OBJDIR)/trackball.o $(OBJDIR)/GLScreenCapturer.o $(OBJDIR)/quaternion.o $(OBJDIR)/bird.o $(OBJDIR)/point.o
+$(TARGET): $(OBJDIR)/main.o $(OBJDIR)/quaternion.o $(OBJDIR)/bird.o $(OBJDIR)/point.o
 	mkdir -p bin
-	$(CC) $(CFLAGS) $(OBJDIR)/* -o $(TARGET) $(FRAMEWORKS)
+	$(CC) $(CFLAGS) $(OBJDIR)/* -o $(TARGET) $(LIBRARIES)
 
 # Compile objects
 $(OBJDIR)/main.o: $(SRCDIR)/main.cpp $(SRCDIR)/quaternion.h $(SRCDIR)/bird.h $(SRCDIR)/point.h
