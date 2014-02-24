@@ -11,6 +11,7 @@ class bird
         void move(double dt);
         void bank(double v, double dt);
         void tilt(double v, double dt);
+        void twist(double v, double dt);
 
         point getpos();
         quaternion getrot();

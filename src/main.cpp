@@ -10,8 +10,6 @@
 
 #include <stdlib.h>
 #include <iostream>
-#include "GLScreenCapturer.h"
-#include "trackball.h"
 #include "bird.h"
 
 using namespace std;
@@ -39,10 +37,10 @@ GLfloat mat_shininess[] = {50.0};
 int me = 0;
 vector<bird> flock;
 
+bool start = false;
+
 // Keys held down
 bool UDLR[4] = {false, false, false, false};
-
-static GLScreenCapturer screenshot("screenshot-%d.ppm");
 
 void initLights()
 {
@@ -76,9 +74,6 @@ void initFlock()
 
 void setupRC()
 {
-    tbInit(GLUT_RIGHT_BUTTON);
-    tbAnimate(GL_TRUE);
-    
     // Place Camera
     camRotX = 90.0f;
     camRotY = 0.0f;
@@ -192,8 +187,6 @@ void display()
     glPushMatrix();
     {
         setCamera();
-        tbMatrix();
-        
         drawThings();
 
         // Retrieve current matrices before they are popped
@@ -209,8 +202,6 @@ void display()
 
 void reshape(int w, int h)
 {
-    tbReshape(w, h);
-
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -230,9 +221,8 @@ void keyboard(unsigned char key, int x, int y)
         case 27: // Escape key
             exit(0);
             break;
-        case 'r':
-            printf("save current screen\n");
-            screenshot.capture();
+        case 's':
+            start = true;
             break;
     }
 }
@@ -316,22 +306,26 @@ void updateCamera()
 
 void update()
 {
-    updateMe();
-    updateFlock();
-    updateCamera();
-    glutPostRedisplay();
+    if(start)
+    {
+        updateMe();
+        updateFlock();
+        updateCamera();
+        glutPostRedisplay();
+    }
 }
 
 int main(int argc, char *argv[])
 {
-    int win_width = 1000;
-    int win_height = 800;
+    int win_width = 960;
+    int win_height = 540;
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(win_width, win_height);
 
-    glutCreateWindow("jett has a game");
+    glutCreateWindow("jett has a thing");
+
     setupRC();
     initFlock();
     loadFish();

@@ -75,6 +75,11 @@ void bird::tilt(double v, double dt)
     rot = rot.compose(makeQuaternion(v*dt, point(0, 0, 1)));
 }
 
+void bird::twist(double v, double dt)
+{
+    rot = rot.compose(makeQuaternion(v*dt, point(0, 1, 0)));
+}
+
 point bird::getpos()
 {
     return pos;
