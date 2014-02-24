@@ -18,7 +18,7 @@ class bird
     private:
         point direction();
         point center(vector<bird>& flock, unsigned int me);
-        point repulsion(vector<bird>& flock, unsigned int me);
+        point repulsion(vector<bird>& flock, unsigned int me, double threshold);
 
         point pos;
         double speed;

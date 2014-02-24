@@ -14,13 +14,12 @@ bird::bird(point pos, double speed, quaternion rot) :
 void bird::align(vector<bird>& flock, unsigned int me)
 {
     point c = center(flock, me);
-    point r = repulsion(flock, me).times(2);
-//    r = point(0, 0, 0);
+    point r = repulsion(flock, me, 1).times(2);
 
     point target = c.plus(r).normalize();
     point dir = direction().normalize();
     point normal = dir.cross(target);
-    point normal2 = target.cross(dir);
+
 
     double theta = 360*acos(target.dot(dir))/M_PI;
 
@@ -44,7 +43,7 @@ point bird::center(vector<bird>& flock, unsigned int me)
     return avg.plus(pos.times(-1));
 }
 
-point bird::repulsion(vector<bird>& flock, unsigned int me)
+point bird::repulsion(vector<bird>& flock, unsigned int me, double threshold)
 {
     point repulsion(0, 0, 0);
 
@@ -54,7 +53,8 @@ point bird::repulsion(vector<bird>& flock, unsigned int me)
         if(i != me)
         {
             point themToMe = pos.plus(flock.at(i).getpos().times(-1)).normalize();
-            repulsion = repulsion.plus(themToMe.times(1/(exp(themToMe.magnitude()))));
+            double dist = themToMe.magnitude();
+            repulsion = repulsion.plus(themToMe.times(1/exp(dist)));
         }
     }
     return repulsion;

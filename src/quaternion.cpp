@@ -90,26 +90,42 @@ quaternion quaternion::compose(quaternion q)
 
 quaternion quaternion::interpolate(quaternion q, double h)
 {
-    double omega = acos((w*q.getw() + x*q.getx() + y*q.gety() + z*q.getz())
-            /(magnitude()*q.magnitude()));
+    double magnitudes = magnitude()*q.magnitude();
+    double omega;
+    if(magnitudes == 0)
+        omega = 0;
+    else
+    {
+        double cosOmega = w*q.getw() + x*q.getx() + y*q.gety() + z*q.getz()/magnitudes;
+        if(cosOmega >= 1)
+            omega = 0;
+        else
+            omega = acos(cosOmega);
+    }
+
     if(omega == 0)
         return *this;
+    else
+    {
+        double nw = (w*sin((1-h)*omega) + q.getw()*sin(h*omega))/sin(omega);
+        double nx = (x*sin((1-h)*omega) + q.getx()*sin(h*omega))/sin(omega);
+        double ny = (y*sin((1-h)*omega) + q.gety()*sin(h*omega))/sin(omega);
+        double nz = (z*sin((1-h)*omega) + q.getz()*sin(h*omega))/sin(omega);
 
-    double nw = (w*sin((1-h)*omega) + q.getw()*sin(h*omega))/sin(omega);
-    double nx = (x*sin((1-h)*omega) + q.getx()*sin(h*omega))/sin(omega);
-    double ny = (y*sin((1-h)*omega) + q.gety()*sin(h*omega))/sin(omega);
-    double nz = (z*sin((1-h)*omega) + q.getz()*sin(h*omega))/sin(omega);
-
-    return quaternion(nw, nx, ny, nz);
+        return quaternion(nw, nx, ny, nz);
+    }
 }
 
 void quaternion::normalize()
 {
     double m = magnitude();
-    w /= m;
-    x /= m;
-    y /= m;
-    z /= m;
+    if(m > 0)
+    {
+        w /= m;
+        x /= m;
+        y /= m;
+        z /= m;
+    }
 }
 
 double quaternion::magnitude()

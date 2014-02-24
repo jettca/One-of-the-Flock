@@ -17,9 +17,10 @@
 using namespace std;
 
 #define BUFFER_LENGTH 64
-#define NUM_THINGS 10
+#define NUM_THINGS 20
 
 GLfloat camRotX, camRotY, camPosX, camPosY, camPosZ;
+GLuint fishDrawList;
 GLint viewport[4];
 GLdouble modelview[16];
 GLdouble projection[16];
@@ -66,7 +67,7 @@ void initFlock()
         double x = 3*(i%5);
         double y = 0;
         double z = 3*(i/5);
-        double speed = 1;
+        double speed = 2.5;
 
         bird b(point(x, y, z), speed, q);
         flock.push_back(b);
@@ -79,7 +80,7 @@ void setupRC()
     tbAnimate(GL_TRUE);
     
     // Place Camera
-    camRotX = 0.0f;
+    camRotX = 90.0f;
     camRotY = 0.0f;
     camPosX = 0.0f;
     camPosY = 0.0f;
@@ -87,15 +88,85 @@ void setupRC()
     
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(0.0f, 0.0f, 1.0f, 0.0f);
     initLights();
 }
 
 void setCamera()
 {
-    glTranslatef(0, 0, camPosZ);
-    glRotatef(camRotX, 1, 0, 0);
-    glRotatef(camRotY, 0, 1, 0);
+    glTranslatef(-camPosX, -camPosY, -camPosZ);
+    //glRotatef(camRotX, 1, 0, 0);
+    //glRotatef(camRotY, 0, 1, 0);
+}
+
+point getFaceNormal(point a, point b, point c)
+{
+    return a.plus(b.times(-1)).cross(c.plus(b.times(-1))).normalize();
+}
+
+void vertex(point p)
+{
+    glVertex3f(p.getx(), p.gety(), p.getz());
+}
+
+void normal(point p)
+{
+    glNormal3f(p.getx(), p.gety(), p.getz());
+}
+
+void triangle(point a, point b, point c)
+{
+    point norm = getFaceNormal(a, b, c);
+    normal(norm);
+    vertex(a);
+    normal(norm);
+    vertex(b);
+    normal(norm);
+    vertex(c);
+}
+
+void loadFish()
+{
+    fishDrawList = glGenLists(1);
+    glNewList(fishDrawList, GL_COMPILE);
+    {
+        glBegin(GL_TRIANGLES);
+        {
+            // Torso
+            point tFront(1, 0.3, 0);
+            point tBottom(0, -0.3, 0);
+            point tRight(0, 0.3, 0.3);
+            point tLeft(0, 0.3, -0.3);
+
+            triangle(tFront, tRight, tLeft);
+            triangle(tFront, tBottom, tRight);
+            triangle(tFront, tLeft, tBottom);
+            triangle(tRight, tBottom, tLeft);
+
+            // Tail fin
+            point tfFront(0, 0, 0);
+            point tfTop(-0.5, 0.3, 0);
+            point tfRight(-0.5, -0.2, 0.2);
+            point tfLeft(-0.5, -0.2, -0.2);
+
+            triangle(tfFront, tfTop, tfLeft);
+            triangle(tfFront, tfRight, tfTop);
+            triangle(tfFront, tfLeft, tfRight);
+            triangle(tfTop, tfRight, tfLeft);
+
+            // Back fin
+            point bfFront(0.6, 0.3, 0);
+            point bfTop(0.35, 0.6, 0);
+            point bfRight(0.2, 0.3, 0.1);
+            point bfLeft(0.2, 0.3, -0.1);
+
+            triangle(bfFront, bfTop, bfLeft);
+            triangle(bfFront, bfRight, bfTop);
+            triangle(bfTop, bfRight, bfLeft);
+        }
+        glEnd();
+    }
+    glEndList();
 }
 
 void drawThings()
@@ -108,7 +179,7 @@ void drawThings()
             glTranslatef(b.getpos().getx(), b.getpos().gety(), b.getpos().getz());
             quaternion rot = b.getrot();
             glRotatef(rot.theta(), rot.vx(), rot.vy(), rot.vz());
-            glutSolidTeapot(1);
+            glCallList(fishDrawList);
         }
         glPopMatrix();
     }
@@ -235,10 +306,19 @@ void updateFlock()
     }
 }
 
+void updateCamera()
+{
+    point mypos = flock.at(me).getpos();
+    camPosX = mypos.getx();
+    camPosY = mypos.gety();
+    camPosZ = mypos.getz() + 30.0f;
+}
+
 void update()
 {
     updateMe();
     updateFlock();
+    updateCamera();
     glutPostRedisplay();
 }
 
@@ -247,14 +327,14 @@ int main(int argc, char *argv[])
     int win_width = 1000;
     int win_height = 800;
 
-    initFlock();
-
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     glutInitWindowSize(win_width, win_height);
 
     glutCreateWindow("jett has a game");
     setupRC();
+    initFlock();
+    loadFish();
 
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
