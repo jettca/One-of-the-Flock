@@ -5,10 +5,11 @@
 
 using namespace std;
 
-fish::fish(point pos, double speed, quaternion rotation) :
+fish::fish(point pos, point color, double speed, quaternion rotation) :
     pos(pos),
     speed(speed),
-    rotation(rotation)
+    rotation(rotation),
+    color(color)
 {}
 
 void fish::align(vector<fish>& flock, unsigned int me)
@@ -82,6 +83,11 @@ void fish::twist(double v, double dt)
 point fish::getpos()
 {
     return pos;
+}
+
+point fish::getcolor()
+{
+    return color;
 }
 
 quaternion fish::getrotation()

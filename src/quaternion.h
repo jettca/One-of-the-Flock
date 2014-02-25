@@ -1,4 +1,7 @@
-#include "point.h"
+#ifndef __POINT_H__
+#   define __POINT_H__
+#   include "point.h"
+#endif
 
 class quaternion
 {

@@ -9,7 +9,7 @@ class fish
         /* Creates a fish object with given position, speed,
          * and initial rotation
          */
-        fish(point pos, double speed, quaternion rotation);
+        fish(point pos, point color, double speed, quaternion rotation);
 
         /* Aligns the fish to the rest of the school
          * me is the fish's position in school
@@ -33,6 +33,7 @@ class fish
         void twist(double v, double dt);
 
         point getpos();
+        point getcolor();
         quaternion getrotation();
 
     private:
@@ -50,6 +51,7 @@ class fish
         point repulsion(vector<fish>& school, unsigned int me, double threshold);
 
         point pos;
+        point color;
         double speed;
         quaternion rotation;
 };

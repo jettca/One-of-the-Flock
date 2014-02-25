@@ -1,21 +1,24 @@
-/* Simple opengl demo program. 
- */
-
-//#elif defined(__linux)
 #if defined(__APPLE__) || defined(MACOSX)
 #   include <GLUT/glut.h>
 #else
 #   include <GL/glut.h>
 #endif
 
+#include "fish.h"
+#include "bubble.h"
+
 #include <stdlib.h>
 #include <iostream>
-#include "fish.h"
+#include <deque>
+
 
 using namespace std;
 
 #define BUFFER_LENGTH 64
 #define NUM_FISH 20
+#define BUBBLE_RATE 1000
+#define BUBBLE_TIME 50
+#define BUBBLE_SPEED .1
 
 GLfloat camRotX, camRotY, camPosX, camPosY, camPosZ;
 GLuint fishDrawList;
@@ -33,9 +36,10 @@ GLfloat mat_diffuse[] = {0.6, 0.6, 0.6, 1.0};
 GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
 GLfloat mat_shininess[] = {50.0};
 
-// Fish
+// Fish and bubbles
 int me = 0;
 vector<fish> school;
+deque<bubble> bubbles;
 
 // For changing initial behavior
 bool start = false;
@@ -48,6 +52,8 @@ void initLights()
 {
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
+    glEnable(GL_COLOR_MATERIAL) ;
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE) ;
     
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
     glLightfv(GL_LIGHT0, GL_POSITION, position);
@@ -57,20 +63,26 @@ void initLights()
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 }
 
+double randDouble()
+{
+    return (double)random()/RAND_MAX;
+}
+
 void initSchool()
 {
     // generate school in large grid, initially
     srandom(time(NULL));
     for(int i = 0; i < NUM_FISH; i++)
     {
-        quaternion q = makeQuaternion(360*random()/RAND_MAX, point(0, 1, 0));
+        quaternion q = makeQuaternion(360.*random()/RAND_MAX, point(0, 1, 0));
 
         double x = 10*(i%5);
         double y = 0;
         double z = 10*(i/5);
         double speed = 2.5;
 
-        fish f(point(x, y, z), speed, q);
+        point color(randDouble(), randDouble(), randDouble());
+        fish f(point(x, y, z), color, speed, q);
         school.push_back(f);
     }
 }
@@ -169,13 +181,33 @@ void drawSchool()
 {
     for(int i = 0; i < NUM_FISH; i++)
     {
-        fish f = school.at(i);
         glPushMatrix();
         {
-            glTranslatef(f.getpos().getx(), f.getpos().gety(), f.getpos().getz());
+            fish f = school.at(i);
+            point fpos = f.getpos();
+            glTranslatef(fpos.getx(), fpos.gety(), fpos.getz());
             quaternion rot = f.getrotation();
             glRotatef(rot.theta(), rot.vx(), rot.vy(), rot.vz());
+            
+            point col = f.getcolor();
+            glColor4f(col.getx(), col.gety(), col.getz(), 1.0f);
             glCallList(fishDrawList);
+        }
+        glPopMatrix();
+    }
+}
+
+void drawBubbles()
+{
+    int bsize = bubbles.size();
+    glColor4f(0.0f, 0.5f, 1.0f, 0.5f);
+    for(int i = 0; i < bsize; i++)
+    {
+        glPushMatrix();
+        {
+            point bpos = bubbles.at(i).getpos();
+            glTranslatef(bpos.getx(), bpos.gety(), bpos.getz());
+            glutSolidSphere(.1, 10, 10);
         }
         glPopMatrix();
     }
@@ -189,6 +221,7 @@ void display()
     {
         setCamera();
         drawSchool();
+        drawBubbles();
 
         // Retrieve current matrices before they are popped
         glGetDoublev(GL_MODELVIEW_MATRIX, modelview);        // Retrieve The Modelview Matrix
@@ -301,6 +334,31 @@ void updateSchool()
     }
 }
 
+void updateBubbles()
+{
+    if(randDouble() > (BUBBLE_RATE - 1.0)/BUBBLE_RATE);
+    {
+        double bx = camPosX + 20.0*random()/RAND_MAX - 10;
+        double by = camPosY + 20.0*random()/RAND_MAX - 10;
+        double bz = camPosZ - 40.0*random()/RAND_MAX;
+
+        point pos(bx, by, bz);
+        bubble b(pos, BUBBLE_SPEED, BUBBLE_TIME);
+        bubbles.push_back(b);
+    }
+
+    int bsize = bubbles.size();
+    for(int i = 0; i < bsize; i++)
+    {
+        if(bubbles.at(i).move())
+        {
+            bubbles.pop_front();
+            i--;
+            bsize--;
+        }
+    }
+}
+
 void updateCamera()
 {
     point mypos = school.at(me).getpos();
@@ -315,6 +373,7 @@ void update()
     {
         updateMe();
         updateSchool();
+        updateBubbles();
         updateCamera();
         glutPostRedisplay();
     }
