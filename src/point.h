@@ -1,3 +1,6 @@
+/* A class for 3-vectors to simplify various calculations
+ */
+
 class point
 {
     public:
@@ -8,11 +11,12 @@ class point
         point plus(point p);
         double dot(point p);
         point cross(point p);
-        void print();
 
         double getx();
         double gety();
         double getz();
+
+        void print();
         
     private:
         double x, y, z;

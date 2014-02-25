@@ -92,6 +92,8 @@ quaternion quaternion::interpolate(quaternion q, double h)
 {
     double magnitudes = magnitude()*q.magnitude();
     double omega;
+    
+    // lots of NAN prevention
     if(magnitudes == 0)
         omega = 0;
     else

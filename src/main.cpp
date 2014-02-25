@@ -37,6 +37,7 @@ GLfloat mat_shininess[] = {50.0};
 int me = 0;
 vector<bird> flock;
 
+// For changing initial behavior
 bool start = false;
 bool keyhit = false;
 
@@ -58,6 +59,7 @@ void initLights()
 
 void initFlock()
 {
+    // generate flock in large grid, initially
     srandom(time(NULL));
     for(int i = 0; i < NUM_THINGS; i++)
     {
@@ -91,8 +93,8 @@ void setupRC()
 void setCamera()
 {
     glTranslatef(-camPosX, -camPosY, -camPosZ);
-    //glRotatef(camRotX, 1, 0, 0);
-    //glRotatef(camRotY, 0, 1, 0);
+    glRotatef(camRotX, 1, 0, 0);
+    glRotatef(camRotY, 0, 1, 0);
 }
 
 point getFaceNormal(point a, point b, point c)
@@ -110,6 +112,7 @@ void normal(point p)
     glNormal3f(p.getx(), p.gety(), p.getz());
 }
 
+// Draw triangle with normal (a, b, c go clockwise)
 void triangle(point a, point b, point c)
 {
     point norm = getFaceNormal(a, b, c);
@@ -121,6 +124,7 @@ void triangle(point a, point b, point c)
     vertex(c);
 }
 
+// Precompile fish drawing
 void loadFish()
 {
     fishDrawList = glGenLists(1);
@@ -165,7 +169,7 @@ void loadFish()
     glEndList();
 }
 
-void drawThings()
+void drawFlock()
 {
     for(int i = 0; i < NUM_THINGS; i++)
     {
@@ -188,7 +192,7 @@ void display()
     glPushMatrix();
     {
         setCamera();
-        drawThings();
+        drawFlock();
 
         // Retrieve current matrices before they are popped
         glGetDoublev(GL_MODELVIEW_MATRIX, modelview);        // Retrieve The Modelview Matrix
@@ -228,6 +232,7 @@ void keyboard(unsigned char key, int x, int y)
     }
 }
 
+// Handle arrow keys
 void special(int key, int x, int y)
 {
     if(start)
@@ -249,6 +254,7 @@ void special(int key, int x, int y)
     }
 }
 
+// Handle arrow key release
 void specialUp(int key, int x, int y)
 {
     switch(key)
@@ -268,6 +274,7 @@ void specialUp(int key, int x, int y)
     }
 }
 
+// Update motion based on arrow key presses
 void updateMe()
 {
     if(UDLR[0])
