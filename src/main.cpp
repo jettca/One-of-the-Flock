@@ -22,6 +22,7 @@ using namespace std;
 
 GLfloat camRotX, camRotY, camPosX, camPosY, camPosZ;
 GLuint fishDrawList;
+GLuint bubbleDrawList;
 GLint viewport[4];
 GLdouble modelview[16];
 GLdouble projection[16];
@@ -175,6 +176,13 @@ void loadFish()
         glEnd();
     }
     glEndList();
+
+    bubbleDrawList = glGenLists(1);
+    glNewList(bubbleDrawList, GL_COMPILE);
+    {
+        glutSolidSphere(.1, 10, 10);
+    }
+    glEndList();
 }
 
 void drawSchool()
@@ -207,7 +215,7 @@ void drawBubbles()
         {
             point bpos = bubbles.at(i).getpos();
             glTranslatef(bpos.getx(), bpos.gety(), bpos.getz());
-            glutSolidSphere(.1, 10, 10);
+            glCallList(bubbleDrawList);
         }
         glPopMatrix();
     }
