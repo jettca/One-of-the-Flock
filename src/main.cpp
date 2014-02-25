@@ -78,8 +78,6 @@ void initFlock()
 void setupRC()
 {
     // Place Camera
-    camRotX = 90.0f;
-    camRotY = 0.0f;
     camPosX = 0.0f;
     camPosY = 0.0f;
     camPosZ = -30.0f;
@@ -93,8 +91,6 @@ void setupRC()
 void setCamera()
 {
     glTranslatef(-camPosX, -camPosY, -camPosZ);
-    glRotatef(camRotX, 1, 0, 0);
-    glRotatef(camRotY, 0, 1, 0);
 }
 
 point getFaceNormal(point a, point b, point c)
