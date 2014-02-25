@@ -7,9 +7,9 @@ using namespace std;
 
 fish::fish(point pos, point color, double speed, quaternion rotation) :
     pos(pos),
+    color(color),
     speed(speed),
-    rotation(rotation),
-    color(color)
+    rotation(rotation)
 {}
 
 void fish::align(vector<fish>& flock, unsigned int me)

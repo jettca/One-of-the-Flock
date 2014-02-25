@@ -50,4 +50,4 @@ I spent a lot of time with the online OpenGL Red Book, found here
 http://www.glprogramming.com/red/index.html.
 
 The OpenGL discussion boards, StackOverflow, and gamedev.net forums were all
-incredibly useful for learning and debugging OpenGL techniques.
+incredibly useful for learning and debugging OpenGL.

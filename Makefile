@@ -35,7 +35,7 @@ $(OBJDIR)/bubble.o: $(SRCDIR)/bubble.cpp $(SRCDIR)/bubble.h
 
 .PHONY: clean
 clean:
-	rm -rf bin/* obj/*
+	rm -rf bin obj
 
 .PHONY: all
 all: clean $(TARGET)

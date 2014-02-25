@@ -16,7 +16,7 @@ using namespace std;
 
 #define BUFFER_LENGTH 64
 #define NUM_FISH 20
-#define BUBBLE_RATE 1000
+#define BUBBLE_RATE 500
 #define BUBBLE_TIME 50
 #define BUBBLE_SPEED .1
 
@@ -338,12 +338,12 @@ void updateBubbles()
 {
     if(randDouble() > (BUBBLE_RATE - 1.0)/BUBBLE_RATE);
     {
-        double bx = camPosX + 20.0*random()/RAND_MAX - 10;
-        double by = camPosY + 20.0*random()/RAND_MAX - 10;
+        double bx = camPosX + 40.0*random()/RAND_MAX - 20;
+        double by = camPosY + 40.0*random()/RAND_MAX - 20;
         double bz = camPosZ - 40.0*random()/RAND_MAX;
 
         point pos(bx, by, bz);
-        bubble b(pos, BUBBLE_SPEED, BUBBLE_TIME);
+        bubble b(pos, BUBBLE_SPEED, (1 + randDouble())*BUBBLE_TIME);
         bubbles.push_back(b);
     }
 
