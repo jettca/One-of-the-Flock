@@ -1,17 +1,17 @@
-#include "bird.h"
+#include "fish.h"
 
 #include <cmath>
 #include <iostream>
 
 using namespace std;
 
-bird::bird(point pos, double speed, quaternion rotation) :
+fish::fish(point pos, double speed, quaternion rotation) :
     pos(pos),
     speed(speed),
     rotation(rotation)
 {}
 
-void bird::align(vector<bird>& flock, unsigned int me)
+void fish::align(vector<fish>& flock, unsigned int me)
 {
     point c = center(flock, me);
     point r = repulsion(flock, me, 1).times(2);
@@ -28,7 +28,7 @@ void bird::align(vector<bird>& flock, unsigned int me)
     rotation = rotation.interpolate(final, .05);
 }
 
-point bird::center(vector<bird>& flock, unsigned int me)
+point fish::center(vector<fish>& flock, unsigned int me)
 {
     point avg(0, 0, 0);
 
@@ -42,7 +42,7 @@ point bird::center(vector<bird>& flock, unsigned int me)
     return avg.plus(pos.times(-1));
 }
 
-point bird::repulsion(vector<bird>& flock, unsigned int me, double threshold)
+point fish::repulsion(vector<fish>& flock, unsigned int me, double threshold)
 {
     point repulsion(0, 0, 0);
 
@@ -59,37 +59,37 @@ point bird::repulsion(vector<bird>& flock, unsigned int me, double threshold)
     return repulsion;
 }
 
-void bird::move(double dt)
+void fish::move(double dt)
 {
     pos = pos.plus(direction().times(speed*dt));
 }
 
-void bird::bank(double v, double dt)
+void fish::bank(double v, double dt)
 {
     rotation = rotation.compose(makeQuaternion(v*dt, point(1, 0, 0)));
 }
 
-void bird::tilt(double v, double dt)
+void fish::tilt(double v, double dt)
 {
     rotation = rotation.compose(makeQuaternion(v*dt, point(0, 0, 1)));
 }
 
-void bird::twist(double v, double dt)
+void fish::twist(double v, double dt)
 {
     rotation = rotation.compose(makeQuaternion(v*dt, point(0, 1, 0)));
 }
 
-point bird::getpos()
+point fish::getpos()
 {
     return pos;
 }
 
-quaternion bird::getrotation()
+quaternion fish::getrotation()
 {
     return rotation;
 }
 
-point bird::direction()
+point fish::direction()
 {
     point dir(1, 0, 0);
     return rotation.rotate(dir);

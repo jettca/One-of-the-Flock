@@ -10,12 +10,12 @@
 
 #include <stdlib.h>
 #include <iostream>
-#include "bird.h"
+#include "fish.h"
 
 using namespace std;
 
 #define BUFFER_LENGTH 64
-#define NUM_THINGS 20
+#define NUM_FISH 20
 
 GLfloat camRotX, camRotY, camPosX, camPosY, camPosZ;
 GLuint fishDrawList;
@@ -33,9 +33,9 @@ GLfloat mat_diffuse[] = {0.6, 0.6, 0.6, 1.0};
 GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
 GLfloat mat_shininess[] = {50.0};
 
-// Birds
+// Fish
 int me = 0;
-vector<bird> flock;
+vector<fish> school;
 
 // For changing initial behavior
 bool start = false;
@@ -57,11 +57,11 @@ void initLights()
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 }
 
-void initFlock()
+void initSchool()
 {
-    // generate flock in large grid, initially
+    // generate school in large grid, initially
     srandom(time(NULL));
-    for(int i = 0; i < NUM_THINGS; i++)
+    for(int i = 0; i < NUM_FISH; i++)
     {
         quaternion q = makeQuaternion(360*random()/RAND_MAX, point(0, 1, 0));
 
@@ -70,8 +70,8 @@ void initFlock()
         double z = 10*(i/5);
         double speed = 2.5;
 
-        bird b(point(x, y, z), speed, q);
-        flock.push_back(b);
+        fish f(point(x, y, z), speed, q);
+        school.push_back(f);
     }
 }
 
@@ -165,15 +165,15 @@ void loadFish()
     glEndList();
 }
 
-void drawFlock()
+void drawSchool()
 {
-    for(int i = 0; i < NUM_THINGS; i++)
+    for(int i = 0; i < NUM_FISH; i++)
     {
-        bird b = flock.at(i);
+        fish f = school.at(i);
         glPushMatrix();
         {
-            glTranslatef(b.getpos().getx(), b.getpos().gety(), b.getpos().getz());
-            quaternion rot = b.getrotation();
+            glTranslatef(f.getpos().getx(), f.getpos().gety(), f.getpos().getz());
+            quaternion rot = f.getrotation();
             glRotatef(rot.theta(), rot.vx(), rot.vy(), rot.vz());
             glCallList(fishDrawList);
         }
@@ -188,7 +188,7 @@ void display()
     glPushMatrix();
     {
         setCamera();
-        drawFlock();
+        drawSchool();
 
         // Retrieve current matrices before they are popped
         glGetDoublev(GL_MODELVIEW_MATRIX, modelview);        // Retrieve The Modelview Matrix
@@ -275,35 +275,35 @@ void updateMe()
 {
     if(UDLR[0])
     {
-        flock.at(me).tilt(6, 1);
+        school.at(me).tilt(6, 1);
     }
     if(UDLR[1])
     {
-        flock.at(me).tilt(-6, 1);
+        school.at(me).tilt(-6, 1);
     }
     if(UDLR[2])
     {
-        flock.at(me).bank(-6, 1);
+        school.at(me).bank(-6, 1);
     }
     if(UDLR[3])
     {
-        flock.at(me).bank(6, 1);
+        school.at(me).bank(6, 1);
     }
 }
 
-void updateFlock()
+void updateSchool()
 {
-    for(int i = 0; i < NUM_THINGS; i++)
+    for(int i = 0; i < NUM_FISH; i++)
     {
-        flock.at(i).move(.1);
+        school.at(i).move(.1);
         if(!keyhit || i != me)
-            flock.at(i).align(flock, i);
+            school.at(i).align(school, i);
     }
 }
 
 void updateCamera()
 {
-    point mypos = flock.at(me).getpos();
+    point mypos = school.at(me).getpos();
     camPosX = mypos.getx();
     camPosY = mypos.gety();
     camPosZ = mypos.getz() + 30.0f;
@@ -314,7 +314,7 @@ void update()
     if(start)
     {
         updateMe();
-        updateFlock();
+        updateSchool();
         updateCamera();
         glutPostRedisplay();
     }
@@ -332,7 +332,7 @@ int main(int argc, char *argv[])
     glutCreateWindow("jett has a thing");
 
     setupRC();
-    initFlock();
+    initSchool();
     loadFish();
 
     glutDisplayFunc(display);
