@@ -5,10 +5,10 @@
 
 using namespace std;
 
-bird::bird(point pos, double speed, quaternion rot) :
+bird::bird(point pos, double speed, quaternion rotation) :
     pos(pos),
     speed(speed),
-    rot(rot)
+    rotation(rotation)
 {}
 
 void bird::align(vector<bird>& flock, unsigned int me)
@@ -22,11 +22,10 @@ void bird::align(vector<bird>& flock, unsigned int me)
 
 
     double theta = 360*acos(target.dot(dir))/M_PI;
-
-    quaternion final = makeQuaternion(theta, normal).compose(rot);
+    quaternion final = makeQuaternion(theta, normal).compose(rotation);
     final.normalize();
-    rot.normalize();
-    rot = rot.interpolate(final, .05);
+    rotation.normalize();
+    rotation = rotation.interpolate(final, .05);
 }
 
 point bird::center(vector<bird>& flock, unsigned int me)
@@ -52,9 +51,9 @@ point bird::repulsion(vector<bird>& flock, unsigned int me, double threshold)
     {
         if(i != me)
         {
-            point themToMe = pos.plus(flock.at(i).getpos().times(-1)).normalize();
+            point themToMe = pos.plus(flock.at(i).getpos().times(-1));
             double dist = themToMe.magnitude();
-            repulsion = repulsion.plus(themToMe.times(1/exp(dist)));
+            repulsion = repulsion.plus(themToMe.times(5/(exp(dist))));
         }
     }
     return repulsion;
@@ -67,17 +66,17 @@ void bird::move(double dt)
 
 void bird::bank(double v, double dt)
 {
-    rot = rot.compose(makeQuaternion(v*dt, point(1, 0, 0)));
+    rotation = rotation.compose(makeQuaternion(v*dt, point(1, 0, 0)));
 }
 
 void bird::tilt(double v, double dt)
 {
-    rot = rot.compose(makeQuaternion(v*dt, point(0, 0, 1)));
+    rotation = rotation.compose(makeQuaternion(v*dt, point(0, 0, 1)));
 }
 
 void bird::twist(double v, double dt)
 {
-    rot = rot.compose(makeQuaternion(v*dt, point(0, 1, 0)));
+    rotation = rotation.compose(makeQuaternion(v*dt, point(0, 1, 0)));
 }
 
 point bird::getpos()
@@ -85,13 +84,13 @@ point bird::getpos()
     return pos;
 }
 
-quaternion bird::getrot()
+quaternion bird::getrotation()
 {
-    return rot;
+    return rotation;
 }
 
 point bird::direction()
 {
     point dir(1, 0, 0);
-    return rot.rotate(dir);
+    return rotation.rotate(dir);
 }

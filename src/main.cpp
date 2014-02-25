@@ -38,6 +38,7 @@ int me = 0;
 vector<bird> flock;
 
 bool start = false;
+bool keyhit = false;
 
 // Keys held down
 bool UDLR[4] = {false, false, false, false};
@@ -60,11 +61,11 @@ void initFlock()
     srandom(time(NULL));
     for(int i = 0; i < NUM_THINGS; i++)
     {
-        quaternion q = makeQuaternion(180, point(0, 1, 0));
+        quaternion q = makeQuaternion(360*random()/RAND_MAX, point(0, 1, 0));
 
-        double x = 3*(i%5);
+        double x = 10*(i%5);
         double y = 0;
-        double z = 3*(i/5);
+        double z = 10*(i/5);
         double speed = 2.5;
 
         bird b(point(x, y, z), speed, q);
@@ -172,7 +173,7 @@ void drawThings()
         glPushMatrix();
         {
             glTranslatef(b.getpos().getx(), b.getpos().gety(), b.getpos().getz());
-            quaternion rot = b.getrot();
+            quaternion rot = b.getrotation();
             glRotatef(rot.theta(), rot.vx(), rot.vy(), rot.vz());
             glCallList(fishDrawList);
         }
@@ -229,7 +230,8 @@ void keyboard(unsigned char key, int x, int y)
 
 void special(int key, int x, int y)
 {
-    quaternion q;
+    if(start)
+        keyhit = true;
     switch(key)
     {
         case GLUT_KEY_UP:
@@ -291,7 +293,7 @@ void updateFlock()
     for(int i = 0; i < NUM_THINGS; i++)
     {
         flock.at(i).move(.1);
-        if(i != me)
+        if(!keyhit || i != me)
             flock.at(i).align(flock, i);
     }
 }
